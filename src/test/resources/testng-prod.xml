@@ -1,0 +1,10 @@
+<!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
+<suite name="PROD Suite">
+    <test name="PROD Tests">
+        <classes>
+            <class name="com.ncr.banking.niis.LoginTest"/>
+            <class name="com.ncr.banking.niis.accounts.AccountsValidationTest"/>
+            <class name="com.ncr.banking.niis.customers.ContactDetailsTest"/>
+        </classes>
+    </test>
+</suite>
