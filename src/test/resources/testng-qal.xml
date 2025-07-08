@@ -7,6 +7,7 @@
         <classes>
             <class name="com.ncr.banking.niis.LoginTest"/>
             <class name="com.ncr.banking.niis.customers.ContactDetailsTest"/>
+            <class name="com.ncr.banking.niis.accounts.AccountValidationTest"/>
         </classes>
     </test>
 </suite>

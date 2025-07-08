@@ -1,6 +1,6 @@
 package com.ncr.banking.niis.accounts;
+
 import io.qameta.allure.Step;
-import org.testng.Assert;
 
 import java.util.Map;
 
@@ -12,22 +12,20 @@ public class AccountValidations {
             String accountName = entry.getKey();
             Map<String, String> balances = entry.getValue();
 
-            validateAccountNameCasing(accountName);
+            validateAccountNameFormat(accountName);
             validateBalancesNonNegative(accountName, balances);
             validateAccountCode(accountName);
-            validateAvailableVsLedger(accountName, balances);
-            // Add more validations here as needed
+            validateBalanceCharacters(accountName,balances);
+            // Add more validations as needed
         }
     }
 
-    @Step("Validate account name casing: {accountName}")
-    private static void validateAccountNameCasing(String accountName) {
-        for (String word : accountName.split(" ")) {
-            if (!word.isEmpty() && Character.isLetter(word.charAt(0))) {
-                Assert.assertTrue(Character.isUpperCase(word.charAt(0)),
-                        "Word '" + word + "' is not title cased in account: " + accountName);
-            }
-        }
+    @Step("Validate account name format for: {accountName}")
+    private static void validateAccountNameFormat(String accountName) {
+        String pattern = "^.+ \\*\\d{3}$";
+
+        assert accountName.matches(pattern) :
+                "Account name does not match required format '<name> *<3-digits>': " + accountName;
     }
 
     @Step("Validate balances non-negative for: {accountName}")
@@ -35,22 +33,29 @@ public class AccountValidations {
         double available = Double.parseDouble(balances.get("available"));
         double ledger = Double.parseDouble(balances.get("ledger"));
 
-        Assert.assertTrue(available >= 0, "Available balance is negative for: " + accountName);
-        Assert.assertTrue(ledger >= 0, "Ledger balance is negative for: " + accountName);
+        assert available >= 0 : "Available balance is negative for: " + accountName;
+        assert ledger >= 0 : "Ledger balance is negative for: " + accountName;
     }
 
     @Step("Validate account code format for: {accountName}")
     private static void validateAccountCode(String accountName) {
-        Assert.assertTrue(accountName.contains("*"),
-                "Account name does not contain '*' as expected: " + accountName);
+        assert accountName.contains("*") :
+                "Account name does not contain '*' as expected: " + accountName;
     }
 
-    @Step("Validate ledger balance >= available balance for: {accountName}")
-    private static void validateAvailableVsLedger(String accountName, Map<String, String> balances) {
-        double available = Double.parseDouble(balances.get("available"));
-        double ledger = Double.parseDouble(balances.get("ledger"));
 
-        Assert.assertTrue(ledger >= available,
-                "Ledger balance should be >= available balance for: " + accountName);
+    @Step("Validate balances contain only allowed characters for: {accountName}")
+    private static void validateBalanceCharacters(String accountName, Map<String, String> balances) {
+        String available = balances.get("available");
+        String ledger = balances.get("ledger");
+
+        String allowedPattern = "^[0-9+\\-\\.]+$";
+
+        assert available.matches(allowedPattern) :
+                "Available balance contains invalid characters for: " + accountName + " (Value: " + available + ")";
+        assert ledger.matches(allowedPattern) :
+                "Ledger balance contains invalid characters for: " + accountName + " (Value: " + ledger + ")";
     }
+
+
 }

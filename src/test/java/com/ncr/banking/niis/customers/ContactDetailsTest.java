@@ -88,11 +88,10 @@ public class ContactDetailsTest {
         Assert.assertTrue(RegexValidator.isValidPhone(phone), "Phone format is invalid: " + phone);
 
         // Take and attach screenshot to Allure (if you want)
-        AttachScreenshot.attachScreenshotToAllure(page);    }
-
-    @AfterClass
-    public void teardown() {
+        AttachScreenshot.attachScreenshotToAllure(page);
         browser.close();
         playwright.close();
     }
+
+
 }

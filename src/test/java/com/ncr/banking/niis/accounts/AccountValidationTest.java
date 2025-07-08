@@ -1,15 +1,20 @@
 package com.ncr.banking.niis.accounts;
 import com.microsoft.playwright.*;
 import com.ncr.banking.niis.accounts.AccountValidations;
+import com.ncr.banking.niis.utils.AttachScreenshot;
+import com.ncr.banking.niis.utils.ConfigLoader;
 import io.qameta.allure.Description;
 import io.qameta.allure.Step;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Parameters;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
+
 
 public class AccountValidationTest {
 
@@ -17,31 +22,41 @@ public class AccountValidationTest {
     private Browser browser;
     private BrowserContext context;
     private Page page;
+    Properties configs;
 
-    @Test(description = "Collect account data and perform validations")
+    @Test(
+            dependsOnGroups = "login",
+            description = "Collect account data and perform validations"
+    )
     @Description("Collect account blocks from UI, build map, and perform multiple validations")
-    @Parameters({"envUrl"})
-    public void accountDataCollectionTest(String envUrl) {
-        setup(envUrl);
+
+    public void accountDataCollectionTest() throws IOException {
+        setup();
 
         Map<String, Map<String, String>> accountsMap = collectAccountsData(page);
 
         // Call your main folder validations
         AccountValidations.validateAccounts(accountsMap);
+        if (context != null) context.close();
+        if (browser != null) browser.close();
+        if (playwright != null) playwright.close();
     }
 
     @Step("Setup Playwright and login context")
-    private void setup(String envUrl) {
+    private void setup() throws IOException {
+        String env= System.getProperty("env", "qal");
         playwright = Playwright.create();
         browser = playwright.chromium().launch(new BrowserType.LaunchOptions().setHeadless(false));
         context = browser.newContext(new Browser.NewContextOptions()
                 .setStorageStatePath(Paths.get("storage/login-state.json"))
         );
         page = context.newPage();
-
-        page.navigate(envUrl);
+        configs= ConfigLoader.loadConfig(env);
+        String homeUrl = configs.getProperty("homeUrl");
+        page.navigate(homeUrl);
         page.waitForTimeout(5000);
         page.waitForSelector(".dbk-accts-account");
+        AttachScreenshot.attachScreenshotToAllure(page);
     }
 
     @Step("Collect account data from UI")
@@ -86,10 +101,5 @@ public class AccountValidationTest {
         return accountsMap;
     }
 
-    @AfterMethod
-    public void tearDown() {
-        if (context != null) context.close();
-        if (browser != null) browser.close();
-        if (playwright != null) playwright.close();
-    }
+
 }
