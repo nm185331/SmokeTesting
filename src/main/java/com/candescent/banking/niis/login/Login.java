@@ -36,6 +36,7 @@ public class Login {
         String username = config.getProperty("username");
         String password = config.getProperty("password");
         String loginUrl = config.getProperty("baseUrl");
+        String homeUrl=config.getProperty("homeUrl");
         String inputCode=config.getProperty("inputCode");
         String usernameSelector = selectors.getProperty("usernameSelector");
         String passwordSelector = selectors.getProperty("passwordSelector");
@@ -81,8 +82,16 @@ public class Login {
             page.click(secureLoginSelector);
             page.fill(codeInputField, inputCode);
             page.press(codeInputField, "Enter");
-            page.waitForTimeout(20000);
+            page.waitForTimeout(4000);
+
+            String currentUrl = page.url();
+
+            if (!currentUrl.equals(homeUrl)) {
+                AttachScreenshot.attachScreenshotToAllure(page, "Login Failed");
+                throw new AssertionError("Login failed: Incorrect input code ");
+            }
             page.waitForLoadState(LoadState.LOAD);
+            page.waitForTimeout(10000);
             AttachScreenshot.attachScreenshotToAllure(page,"After Login");
             page.context().storageState(new BrowserContext.StorageStateOptions().setPath(Paths.get("storage/login-state.json")));
         }
