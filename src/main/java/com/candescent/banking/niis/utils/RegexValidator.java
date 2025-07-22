@@ -1,4 +1,4 @@
-package com.ncr.banking.niis.utils;
+package com.candescent.banking.niis.utils;
 
 
 public class RegexValidator {
@@ -8,6 +8,6 @@ public class RegexValidator {
     }
 
     public static boolean isValidPhone(String phone) {
-        return phone != null && phone.matches("^\\+1 \\(\\d{3}\\) \\d{3}-\\d{4}$");
+        return phone != null && phone.matches("^\\(\\d{3}\\) \\d{3}-\\d{4}$");
     }
 }

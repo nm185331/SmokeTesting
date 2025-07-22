@@ -5,9 +5,9 @@
     </listeners>
     <test name="QAL Tests">
         <classes>
-            <class name="com.ncr.banking.niis.LoginTest"/>
-            <class name="com.ncr.banking.niis.customers.ContactDetailsTest"/>
-            <class name="com.ncr.banking.niis.accounts.AccountValidationTest"/>
+            <class name="com.candescent.banking.niis.LoginTest"/>
+            <class name="com.candescent.banking.niis.customers.ContactDetailsTest"/>
+            <class name="com.candescent.banking.niis.accounts.AccountValidationTest"/>
         </classes>
     </test>
 </suite>

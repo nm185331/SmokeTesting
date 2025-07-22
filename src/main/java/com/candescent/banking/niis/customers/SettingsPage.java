@@ -1,4 +1,4 @@
-package com.ncr.banking.niis.customers;
+package com.candescent.banking.niis.customers;
 
 
 import com.microsoft.playwright.Page;

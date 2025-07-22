@@ -1,12 +1,13 @@
-package com.ncr.banking.niis.login;
+package com.candescent.banking.niis.login;
 import com.microsoft.playwright.*;
 import com.microsoft.playwright.assertions.PlaywrightAssertions;
 import com.microsoft.playwright.options.LoadState;
 import com.microsoft.playwright.options.WaitUntilState;
-import com.ncr.banking.niis.utils.AttachScreenshot;
-import com.ncr.banking.niis.utils.ConfigLoader;
-import com.ncr.banking.niis.utils.selectorsLoader;
+import com.candescent.banking.niis.utils.AttachScreenshot;
+import com.candescent.banking.niis.utils.ConfigLoader;
+import com.candescent.banking.niis.utils.fileLoader;
 
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.Properties;
@@ -21,10 +22,11 @@ public class Login {
         this.env=env;
     }
 
+
     public Page performLogin() throws IOException {
 
         String selectorFile="src/main/resources/selector-"+env+".properties";
-        Properties selectors= selectorsLoader.loadProperties(selectorFile);
+        Properties selectors= fileLoader.loadProperties(selectorFile);
 
         Playwright playwright=Playwright.create();
         Browser browser;
@@ -41,6 +43,19 @@ public class Login {
         String secureLoginSelector = selectors.getProperty("secureLoginSelector");
         String codeInputField = selectors.getProperty("codeInputField");
         String expectedErrorMessage = selectors.getProperty("errorMessage");
+
+        String propertiesFilePath = "src/test/resources/environment.properties";
+        Properties updatedProps = new Properties();
+
+        // Set the values you want to update
+        updatedProps.setProperty("URL", loginUrl);
+        updatedProps.setProperty("Environment", env);
+        updatedProps.setProperty("Browser", "Chromium");
+
+        // Save to file
+        try (FileOutputStream out = new FileOutputStream(propertiesFilePath)) {
+            updatedProps.store(out, "Updated by Login class");
+        }
 
         page.navigate(loginUrl, new Page.NavigateOptions().setTimeout(60000).setWaitUntil(WaitUntilState.DOMCONTENTLOADED));
         page.fill(usernameSelector, username);
@@ -68,12 +83,12 @@ public class Login {
             page.press(codeInputField, "Enter");
             page.waitForTimeout(20000);
             page.waitForLoadState(LoadState.LOAD);
-            AttachScreenshot.attachScreenshotToAllure(page);
+            AttachScreenshot.attachScreenshotToAllure(page,"After Login");
             page.context().storageState(new BrowserContext.StorageStateOptions().setPath(Paths.get("storage/login-state.json")));
         }
 
-//        browser.close();
-//        playwright.close();
+        browser.close();
+        playwright.close();
         return page;
 
     }

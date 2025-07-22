@@ -1,4 +1,4 @@
-package com.ncr.banking.niis.utils;
+package com.candescent.banking.niis.utils;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,12 +1,12 @@
-package com.ncr.banking.niis.customers;
+package com.candescent.banking.niis.customers;
 
+import com.microsoft.playwright.options.AriaRole;
 import com.microsoft.playwright.options.LoadState;
-import com.ncr.banking.niis.utils.AttachScreenshot;
-import com.ncr.banking.niis.utils.ConfigLoader;
-import com.ncr.banking.niis.utils.RegexValidator;
-import com.ncr.banking.niis.utils.selectorsLoader;
+import com.candescent.banking.niis.utils.AttachScreenshot;
+import com.candescent.banking.niis.utils.ConfigLoader;
+import com.candescent.banking.niis.utils.RegexValidator;
+import com.candescent.banking.niis.utils.fileLoader;
 import io.qameta.allure.Allure;
-import io.qameta.allure.testng.AllureTestNg;
 import org.testng.annotations.Test;
 import com.microsoft.playwright.*;
 import org.testng.Assert;
@@ -32,7 +32,7 @@ public class ContactDetailsTest {
         System.out.println("Env from system property: " + env);
 
         String selectorFile = "src/main/resources/selector-" + env + ".properties";
-        selectors = selectorsLoader.loadProperties(selectorFile);
+        selectors = fileLoader.loadProperties(selectorFile);
         configs= ConfigLoader.loadConfig(env);
 
         playwright = Playwright.create();
@@ -47,7 +47,8 @@ public class ContactDetailsTest {
         settingsPhone1Selector=selectors.getProperty("settingsPhone1Selector");
         settingsPrimaryEmailAddressSelector=selectors.getProperty("settingsPrimaryEmailAddressSelector");
         page.navigate(homeUrl);
-        page.click(settingsPageSelector);
+        page.getByRole(AriaRole.LINK, new Page.GetByRoleOptions().setName(selectors.getProperty("mySettingsLink"))).click();
+
         page.waitForLoadState(LoadState.DOMCONTENTLOADED);
 
         settingsPage = new SettingsPage(page);
@@ -55,6 +56,7 @@ public class ContactDetailsTest {
 
     @Test(
             dependsOnGroups = "login",
+            groups = "read",
             description = "Validate email and phone number presence and format"
     )
     public void validateEmailAndPhone() {
@@ -88,7 +90,7 @@ public class ContactDetailsTest {
         Assert.assertTrue(RegexValidator.isValidPhone(phone), "Phone format is invalid: " + phone);
 
         // Take and attach screenshot to Allure (if you want)
-        AttachScreenshot.attachScreenshotToAllure(page);
+        AttachScreenshot.attachScreenshotToAllure(page, "Settings Page");
         browser.close();
         playwright.close();
     }
